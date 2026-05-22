@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Meihua 4 Quiz | 50 Questions + 20s Timer | English Options</title>
+    <meta name="google" content="notranslate">
+    <meta name="robots" content="noindex, nofollow">
+    <style>
+        * {
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background: linear-gradient(145deg, #eef2f9 0%, #dce5f0 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'SimSun', 'Simsun', 'Noto Sans CJK SC', 'Segoe UI', monospace;
+            padding: 20px;
+            margin: 0;
+        }
+        /* Layer awal (input nama) */
+        .start-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: 0.3s;
+        }
+        .start-card {
+            max-width: 550px;
+            width: 90%;
+            background: white;
+            border-radius: 48px;
+            padding: 32px 28px;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            font-family: 'SimSun', 'Simsun', monospace;
+        }
+        .start-card h2 {
+            font-size: 1.8rem;
+            color: #1f3a5f;
+            margin-bottom: 8px;
+        }
+        .start-card h3 {
+            font-size: 1.4rem;
+            color: #2c5f8a;
+            margin-top: 0;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #ffaa44;
+            display: inline-block;
+            padding-bottom: 6px;
+        }
+        .aturan {
+            text-align: left;
+            background: #f4f8fe;
+            padding: 16px 20px;
+            border-radius: 28px;
+            margin: 20px 0;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        .aturan p {
+            margin: 8px 0;
+        }
+        .input-nama {
+            width: 90%;
+            padding: 14px 18px;
+            font-size: 1.1rem;
+            border-radius: 60px;
+            border: 2px solid #cbddee;
+            font-family: Times New Roman;
+            text-align: center;
+            margin: 15px 0;
+            outline: none;
+        }
+        .btn-mulai {
+            background: linear-gradient(95deg, #28a47e, #1f8a68);
+            border: none;
+            padding: 14px 28px;
+            border-radius: 60px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: white;
+            cursor: pointer;
+            width: 100%;
+            font-family: 'SimSun', '宋体', Times New Roman;
+            transition: 0.1s;
+        }
+        .btn-mulai:hover {
+            transform: scale(0.98);
+        }
+        /* Kuis wrapper (awal tersembunyi) */
+        .kuis-wrapper {
+            max-width: 1100px;
+            width: 100%;
+            background: #ffffffdd;
+            backdrop-filter: blur(2px);
+            border-radius: 56px;
+            box-shadow: 0 25px 45px -12px rgba(0,0,0,0.3);
+            overflow: hidden;
+            display: none;
+        }
+        .header {
+            background: linear-gradient(115deg, #1f3a5f, #142b44);
+            padding: 20px 32px;
+            text-align: center;
+            color: white;
+        }
+        .header h1 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 0;
+        }
+        .badge {
+            background: rgba(255,255,240,0.2);
+            border-radius: 60px;
+            padding: 4px 16px;
+            font-size: 0.8rem;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 12px;
+            gap: 10px;
+        }
+        .counter, .timer-area, .nama-peserta {
+            background: #00000030;
+            border-radius: 40px;
+            padding: 6px 16px;
+            font-size: 0.9rem;
+        }
+        .timer-area {
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .timer-warning {
+            color: #ffdd99;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+        .question-panel {
+            padding: 28px 28px 24px;
+            background: #fff;
+        }
+        .q-type {
+            display: inline-block;
+            background: #eef3fc;
+            border-radius: 30px;
+            padding: 4px 18px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #1f5e8e;
+            margin-bottom: 18px;
+        }
+        .question-text {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #0a2a44;
+            background: #f9fcff;
+            padding: 18px 22px;
+            border-radius: 40px;
+            margin: 8px 0 24px;
+            line-height: 1.45;
+            border: 2px solid #e2edfb;
+        }
+        .options-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin: 20px 0 28px;
+        }
+        .opt-btn {
+            background: #f4f8fe;
+            border: 2px solid #d2e2f5;
+            border-radius: 60px;
+            padding: 12px 16px;
+            font-size: 1.15rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.1s;
+            text-align: left;
+            color: #1e3a5f;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .opt-btn .prefix {
+            font-weight: 800;
+            background: #cbddee;
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            text-align: center;
+            border-radius: 50%;
+            color: #142b44;
+            flex-shrink: 0;
+        }
+        .opt-btn.selected {
+            background: #2c5f8a;
+            border-color: #1b4b6e;
+            color: white;
+        }
+        .opt-btn.selected .prefix {
+            background: #ffcd7e;
+            color: #1f3a5f;
+        }
+        .nav-row {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .nav-btn {
+            flex: 1;
+            background: #eef2f9;
+            border: none;
+            padding: 12px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(95deg, #28a47e, #1f8a68);
+            border: none;
+            padding: 14px;
+            border-radius: 60px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: white;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.1s;
+        }
+        .submit-btn:disabled {
+            background: #a0b8c5;
+            cursor: not-allowed;
+            opacity: 0.6;
+            transform: none;
+        }
+        .score-box, .feedback-box {
+            background: #fef1cf;
+            border-radius: 28px;
+            padding: 18px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+        .feedback-box {
+            text-align: left;
+            border-left: 6px solid #f4b942;
+            background: #fff3df;
+        }
+        footer {
+            font-size: 0.7rem;
+            text-align: center;
+            padding: 14px;
+            background: #eef3fc;
+            color: #446688;
+        }
+        button:active { transform: scale(0.97); }
+        .warning-note {
+            background: #fff0db;
+            border-radius: 24px;
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            text-align: center;
+            margin-top: 8px;
+            color: #b45f06;
+        }
+        @media (max-width: 650px) {
+            .question-text { font-size: 1.3rem; }
+            .opt-btn { font-size: 0.95rem; padding: 10px 12px; }
+            .options-area { gap: 10px; }
+            .info-row { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+<div class="start-layer" id="startLayer">
+    <div class="start-card">
+        <h2>📚 Meihua 4 Quiz</h2>
+        <h3>🎯 Chinese Challenge</h3>
+        <div class="aturan">
+            <p>📌 <strong>Quiz Rules:</strong></p>
+            <p>1. Total questions: <strong>50</strong> (randomized).</p>
+            <p>2. Each question: <strong>20 seconds</strong> (auto-next if time runs out).</p>
+            <p>3. Select answer <strong>A, B, C, D</strong> as fast as possible.</p>
+            <p>4. Final score & full explanation at the end.</p>
+            <p>5. Minimum passing score: <strong>70</strong> (≥70 = PASS).</p>
+            <p>⚠️ <strong>Note:</strong> "Previous" button is disabled. You can only move forward.<br>
+            ✅ <strong>Submit button</strong> becomes active only after reaching the last question AND answering all 50 questions.</p>
+        </div>
+        <input type="text" id="namaSiswa" class="input-nama" placeholder="Enter your name" autocomplete="off">
+        <button class="btn-mulai" id="tombolMulai">✅ START QUIZ ✅</button>
+    </div>
+</div>
+
+<div class="kuis-wrapper" id="kuisWrapper">
+    <div class="header">
+        <h1>🎯 Meihua 4 Quiz <span class="badge">50 Dynamic Questions</span></h1>
+        <div class="info-row">
+            <div class="counter">📌 Question <span id="soalKe">1</span> / <span id="totalSoal">50</span></div>
+            <div class="timer-area">⏱️ <span id="timerDetik">20</span> seconds</div>
+            <div class="nama-peserta" id="tampilNama"></div>
+        </div>
+    </div>
+    <div class="question-panel" id="questionPanel">
+        <div style="text-align:center; padding:40px;">Loading questions...</div>
+    </div>
+    <footer>✔️ | Random questions & options | 20s per question | Auto-forward | No backward | lcnpalembang</footer>
+</div>
+
+<script>
+    // ======================== BANK SOAL (ENGLISH OPTIONS) ========================
+    function buatBankSoal() {
+        const bank = [];
+        // All options are now in ENGLISH (except the Chinese questions remain)
+        const mcList = [
+            { text: "What is the meaning of “左边” ?", options: ["Right side", "Left side", "Front", "Back"], correct: 1, explanation: "左边 = left side" },
+            { text: "Pinyin for “咖啡厅” ?", options: ["kāfēi tīng", "kāfēi tíng", "kā fēi tīng", "jiāfēi tīng"], correct: 0, explanation: "kāfēi tīng" },
+            { text: "Meaning of “突然” in English?", options: ["Suddenly", "Slowly", "Usually", "Continuously"], correct: 0, explanation: "突然 = suddenly" },
+            { text: "“听说” means?", options: ["Hearing / They say", "Speak", "Voice", "Listen"], correct: 0, explanation: "听说 = it is said / hear say" },
+            { text: "火车站 → correct pinyin", options: ["huǒchē zhàn", "huōchē zhàn", "huǒce zhàn", "huǒchē zhān"], correct: 0, explanation: "huǒchē zhàn = train station" },
+            { text: "What does “蛋糕店” sell?", options: ["Cake", "Bread", "Drinks", "Fruits"], correct: 0, explanation: "蛋糕店 = cake shop" },
+            { text: "Antonym of “漂亮” ?", options: ["Beautiful", "Ugly", "Pretty", "Cute"], correct: 1, explanation: "漂亮 antonym = ugly (丑)" },
+            { text: "Meaning of “周围” ?", options: ["Surroundings", "Front", "Back", "Inside"], correct: 0, explanation: "周围 = surroundings / around" },
+            { text: "Meaning of “接” in “接爷爷” ?", options: ["Pick up", "See", "Send off", "Meet"], correct: 0, explanation: "接 = to pick up" },
+            { text: "Indonesian of “火车站” ?", options: ["Train station", "Airport", "Bus stop", "Terminal"], correct: 0, explanation: "火车站 = train station" },
+            { text: "Pinyin for “左边” ?", options: ["zuǒbiān", "yòubiān", "qiánmiàn", "hòumiàn"], correct: 0, explanation: "zuǒbiān = left side" },
+            { text: "Meaning of “果汁店” ?", options: ["Juice shop", "Fruit shop", "Cafe", "Restaurant"], correct: 0, explanation: "果汁店 = juice shop" },
+            { text: "What is “烤鸭” ?", options: ["Roast duck", "Fried chicken", "Grilled fish", "Beef"], correct: 0, explanation: "烤鸭 = roast duck" },
+            { text: "Pinyin for “熊猫” ?", options: ["xióngmāo", "xiōngmāo", "xiong mao", "xiónɡ māo"], correct: 0, explanation: "xióngmāo = panda" }
+        ];
+        mcList.forEach(q => bank.push({ type: "mc", ...q }));
+        
+        const fillList = [
+            { text: "我没吃____北京烤鸭。 (I have never eaten Peking duck)", options: ["过", "见", "住", "了"], correct: "过", explanation: "没吃过 = have never eaten" },
+            { text: "我____见过外星人。 (I have never seen aliens)", options: ["没", "不", "也", "有"], correct: "没", explanation: "没见过 = have never seen" },
+            { text: "学校____围有咖啡厅吗？ (Is there a cafe around the school?)", options: ["周", "州", "洲", "舟"], correct: "周", explanation: "周围 zhōuwéi = surrounding" },
+            { text: "我在水果____买苹果。 (I buy apples at the fruit ____)", options: ["店", "家", "市", "场"], correct: "店", explanation: "水果店 = fruit shop" },
+            { text: "妹妹最喜欢喝____。 (Little sister likes to drink ____ most)", options: ["果汁", "水果", "苹果", "果子"], correct: "果汁", explanation: "果汁 = juice" },
+            { text: "昨天____然下雨了。 (It suddenly rained yesterday)", options: ["突", "图", "兔", "土"], correct: "突", explanation: "突然 = suddenly" },
+            { text: "他的爱好跟我一____。 (His hobby is the same as mine)", options: ["样", "羊", "阳", "杨"], correct: "样", explanation: "一样 = same" },
+            { text: "他坐在我的左____。 (He sits on my left ____)", options: ["边", "面", "方", "侧"], correct: "边", explanation: "左边 = left side" },
+            { text: "爷爷____得很远。 (Grandpa lives very far)", options: ["住", "往", "走", "去"], correct: "住", explanation: "住 = to live" },
+            { text: "你____过烤鸭吗？ (Have you ever eaten roast duck?)", options: ["吃", "喝", "尝", "见"], correct: "吃", explanation: "吃过 = have eaten" }
+        ];
+        fillList.forEach(q => bank.push({ type: "fill", ...q }));
+        
+        const orderList = [
+            { text: "Arrange: 熊猫 / 看过 / 我", options: ["我看过熊猫", "熊猫我看过", "我熊猫看过", "看过我熊猫"], correct: 0, explanation: "我看过熊猫 = I have seen pandas" },
+            { text: "Arrange: 没 / 烤鸭 / 过 / 哥哥 / 吃", options: ["哥哥没吃过烤鸭", "哥哥吃没烤鸭过", "没吃过哥哥烤鸭", "烤鸭没吃过哥哥"], correct: 0, explanation: "哥哥没吃过烤鸭 = Brother has never eaten roast duck" },
+            { text: "Arrange: 爷爷 / 很远 / 住 / 得", options: ["爷爷住得很远", "爷爷得很远住", "住爷爷得很远", "很远爷爷得住"], correct: 0, explanation: "爷爷住得很远 = Grandpa lives very far" },
+            { text: "Arrange: 去 / 爸爸 / 火车站 / 接 / 爷爷", options: ["爸爸去火车站接爷爷", "去火车站爸爸接爷爷", "爷爷接爸爸去火车站", "火车站爸爸去接爷爷"], correct: 0, explanation: "爸爸去火车站接爷爷 = Dad goes to station to pick up grandpa" },
+            { text: "Arrange: 左边 / 果汁店 / 有 / 一个", options: ["左边有一个果汁店", "一个左边果汁店有", "果汁店左边有一个", "有左边一个果汁店"], correct: 0, explanation: "左边有一个果汁店 = There is a juice shop on the left" },
+            { text: "Arrange: 突然 / 下雨 / 了 / 踢足球 / 我 / 的时候", options: ["我踢足球的时候突然下雨了", "突然下雨我踢足球的时候", "下雨我踢足球的时候突然", "踢足球的时候我下雨突然"], correct: 0, explanation: "我踢足球的时候突然下雨了 = It suddenly rained while I was playing soccer" }
+        ];
+        orderList.forEach(q => bank.push({ type: "order", ...q }));
+        
+        const tfList = [
+            { text: "Statement: '姐姐看过北京去' (Sister has been to Beijing?)", options: ["True ✓", "False ✗"], correct: 1, explanation: "False, should be '姐姐去过北京'" },
+            { text: "Statement: '我坐在弟弟的前面' (I sit in front of little brother)", options: ["True ✓", "False ✗"], correct: 0, explanation: "True, correct position" },
+            { text: "Statement: '爸爸妈妈坐我们后面在'", options: ["True ✓", "False ✗"], correct: 1, explanation: "False, should be '爸爸妈妈坐在我们后面'" },
+            { text: "Statement: '我没吃过北京烤鸭' means I have eaten Peking duck.", options: ["True ✓", "False ✗"], correct: 1, explanation: "False, 没吃过 = have never eaten" }
+        ];
+        tfList.forEach(q => bank.push({ type: "tf", ...q }));
+        
+        const readingList = [
+            { text: "(Reading) 爸爸带我去火车站接爷爷。爷爷左边果汁店，右边蛋糕店。What is on grandpa's right?", options: ["Juice shop", "Cake shop", "Coffee shop", "Bookstore"], correct: 1, explanation: "Right side is cake shop (蛋糕店)" },
+            { text: "School is surrounded by coffee shop. Coffee shop is left of bookstore. Bookstore is to the ... of coffee shop?", options: ["left", "right", "front", "back"], correct: 0, explanation: "left (kiri)" },
+            { text: "My house: front of school, behind park. School is ... of my house?", options: ["front", "behind", "left", "right"], correct: 0, explanation: "front (depan)" },
+            { text: "Dialogue: A: 你吃过烤鸭吗？ B: 没吃过，听说很好吃。 B means?", options: ["B has eaten", "B hasn't eaten but heard it's delicious", "B doesn't like it", "B is in Beijing"], correct: 1, explanation: "Hasn't eaten, but hears it's delicious" }
+        ];
+        readingList.forEach(q => bank.push({ type: "mc", ...q }));
+        
+        const transList = [
+            { text: "“I have eaten roast duck” in Chinese?", options: ["我吃过烤鸭", "我吃烤鸭过", "我吃过烤鸭了", "我吃过了烤鸭一次"], correct: 0, explanation: "我吃过烤鸭" },
+            { text: "“Grandpa lives very far” in Mandarin?", options: ["爷爷住得很远", "爷爷很近", "爷爷住远", "爷爷那边远"], correct: 0, explanation: "爷爷住得很远" },
+            { text: "“Left side is the cake shop” translation?", options: ["左边是蛋糕店", "右边是蛋糕店", "前面蛋糕店", "后面蛋糕店"], correct: 0, explanation: "左边是蛋糕店" }
+        ];
+        transList.forEach(q => bank.push({ type: "mc", ...q }));
+        
+        const pinyinList = [
+            { text: "Pinyin: wǒ hé jiějiě dōu xǐhuan hēisè", options: ["我和姐姐都喜欢黑色", "我和姐姐都喜欢红色", "我喜欢黑色", "姐姐喜欢黑色"], correct: 0, explanation: "我和姐姐都喜欢黑色 = Older sister and I both like black" },
+            { text: "tā zuò zài wǒ de zuǒbiān", options: ["他坐在我的右边", "他坐在我的左边", "他在我左边坐", "左边他坐"], correct: 1, explanation: "他坐在我的左边 = He sits on my left" },
+            { text: "mèimei zuì xǐhuan hē guǒzhī", options: ["妹妹最喜欢喝果汁", "妹妹最爱咖啡", "妹妹喝水", "果汁妹妹喜欢"], correct: 0, explanation: "妹妹最喜欢喝果汁 = Little sister likes juice best" }
+        ];
+        pinyinList.forEach(q => bank.push({ type: "mc", ...q }));
+        
+        const extra = [
+            { type: "mc", text: "Correct pinyin for “做梦” ?", options: ["zuòmèng", "zuò mèng", "zuòměng", "zuò mòng"], correct: 0, explanation: "zuòmèng = to dream" },
+            { type: "fill", text: "我跟她____样喜欢游泳。 (I like swimming the same as her)", options: ["一", "二", "同", "相"], correct: "一", explanation: "一样 = same" },
+            { type: "order", text: "Arrange: 看过 / 熊猫 / 我", options: ["我看过熊猫", "熊猫看过我", "看过我熊猫", "我熊猫看过"], correct: 0, explanation: "我看过熊猫 = I have seen pandas" },
+            { type: "tf", text: "Statement: '我没见过外星人' means I have seen aliens.", options: ["True ✓", "False ✗"], correct: 1, explanation: "False, 没见过 = have never seen" },
+            { type: "mc", text: "Meaning of “书店” ?", options: ["Bookstore", "Library", "Stationery shop", "Cafe"], correct: 0, explanation: "书店 = bookstore" },
+            { type: "fill", text: "蛋糕店在果汁店的右____。 (Cake shop is on the right ____ of juice shop)", options: ["边", "面", "方", "侧"], correct: "边", explanation: "右边 = right side" }
+        ];
+        extra.forEach(q => bank.push(q));
+        return bank;
+    }
+    
+    function shuffleArray(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+    
+    function ambil50Soal() {
+        const master = buatBankSoal();
+        const shuffledMaster = shuffleArray([...master]);
+        const selected = shuffledMaster.slice(0, 50);
+        selected.forEach(soal => {
+            if (soal.type === "mc" || soal.type === "order" || soal.type === "tf") {
+                const originalOpts = [...soal.options];
+                const correctIdx = soal.correct;
+                const correctText = originalOpts[correctIdx];
+                const shuffledOpts = shuffleArray([...originalOpts]);
+                const newCorrectIdx = shuffledOpts.indexOf(correctText);
+                soal.options = shuffledOpts;
+                soal.correct = newCorrectIdx;
+            } else if (soal.type === "fill") {
+                soal.options = shuffleArray([...soal.options]);
+            }
+        });
+        return shuffleArray(selected);
+    }
+    
+    let daftarSoal = [];
+    let jawabanUser = [];
+    let indeksSekarang = 0;
+    let timerInterval = null;
+    let waktuTersisa = 20;
+    let namaPeserta = "";
+    let quizFinished = false;
+    
+    const startLayer = document.getElementById('startLayer');
+    const kuisWrapper = document.getElementById('kuisWrapper');
+    const panel = document.getElementById('questionPanel');
+    const spanSoalKe = document.getElementById('soalKe');
+    const spanTotal = document.getElementById('totalSoal');
+    const timerSpan = document.getElementById('timerDetik');
+    const tampilNamaSpan = document.getElementById('tampilNama');
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : (m === '<' ? '&lt;' : '&gt;'));
+    }
+    
+    function getAbjad(idx) {
+        return String.fromCharCode(65 + idx);
+    }
+    
+    function stopTimer() {
+        if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+    }
+    
+    function startTimer() {
+        stopTimer();
+        waktuTersisa = 20;
+        if (timerSpan) timerSpan.innerText = waktuTersisa;
+        timerInterval = setInterval(() => {
+            if (quizFinished) return;
+            if (waktuTersisa <= 1) {
+                stopTimer();
+                if (timerSpan) timerSpan.innerText = "0";
+                if (!quizFinished) lanjutOtomatis();
+            } else {
+                waktuTersisa--;
+                if (timerSpan) timerSpan.innerText = waktuTersisa;
+                if (waktuTersisa <= 10) timerSpan.classList.add('timer-warning');
+                else timerSpan.classList.remove('timer-warning');
+            }
+        }, 1000);
+    }
+    
+    function lanjutOtomatis() {
+        if (quizFinished) return;
+        if (indeksSekarang === daftarSoal.length - 1) {
+            // jika sudah di akhir, jangan auto lanjut, tapi cek submit
+            if (allQuestionsAnswered()) {
+                hitungDanTampilkanSkor();
+            } else {
+                // tetap di soal terakhir, tapi timer berhenti? kita stop timer dan tampilkan warning
+                stopTimer();
+                const submitBtn = document.getElementById('tombolSubmit');
+                if (submitBtn) submitBtn.disabled = false;
+                const warningDiv = document.getElementById('warningMsg');
+                if (warningDiv) warningDiv.style.display = 'block';
+            }
+        } else {
+            indeksSekarang++;
+            renderSoal();
+            perbaruiCounter();
+        }
+    }
+    
+    function allQuestionsAnswered() {
+        return jawabanUser.every(ans => ans !== null && ans !== undefined);
+    }
+    
+    function updateSubmitButtonState() {
+        const submitBtn = document.getElementById('tombolSubmit');
+        if (!submitBtn) return;
+        const isLastQuestion = (indeksSekarang === daftarSoal.length - 1);
+        const allAnswered = allQuestionsAnswered();
+        if (isLastQuestion && allAnswered) {
+            submitBtn.disabled = false;
+        } else {
+            submitBtn.disabled = true;
+        }
+    }
+    
+    function renderSoal() {
+        if (!panel || !daftarSoal.length || quizFinished) return;
+        const soal = daftarSoal[indeksSekarang];
+        let labelTipe = '';
+        if (soal.type === 'mc') labelTipe = 'Multiple Choice';
+        else if (soal.type === 'order') labelTipe = 'Arrange Sentence';
+        else if (soal.type === 'tf') labelTipe = 'True / False';
+        else if (soal.type === 'fill') labelTipe = 'Select Hanzi (Fill)';
+        
+        let html = `
+            <div>
+                <div class="q-type">${labelTipe}</div>
+                <div class="question-text">${escapeHtml(soal.text)}</div>
+                <div class="options-area" id="opsiContainer"></div>
+                <div class="nav-row">
+                    <button class="nav-btn" id="tombolPrev" disabled style="opacity:0.5; cursor:not-allowed;">◀ Previous (Disabled)</button>
+                    <button class="nav-btn" id="tombolNext">Next ▶</button>
+                </div>
+                <button class="submit-btn" id="tombolSubmit" disabled>✅ SUBMIT ALL ANSWERS ✅</button>
+                <div id="warningMsg" class="warning-note" style="display:none;">⚠️ Please answer all questions before submitting! ⚠️</div>
+                <div id="tampilanSkor" class="score-box"></div>
+                <div id="tampilanFeedback" class="feedback-box"></div>
+            </div>
+        `;
+        panel.innerHTML = html;
+        
+        const opsiContainer = document.getElementById('opsiContainer');
+        const jawabanTersimpan = jawabanUser[indeksSekarang];
+        
+        const tambahTombol = (teks, nilai, tipe) => {
+            const btn = document.createElement('button');
+            btn.className = 'opt-btn';
+            let selected = false;
+            if (tipe === 'index' && jawabanTersimpan !== null && jawabanTersimpan === nilai) selected = true;
+            if (tipe === 'string' && jawabanTersimpan !== null && jawabanTersimpan === nilai) selected = true;
+            if (selected) btn.classList.add('selected');
+            const prefixChar = String.fromCharCode(65 + opsiContainer.children.length);
+            btn.innerHTML = `<span class="prefix">${prefixChar}</span><span>${escapeHtml(teks)}</span>`;
+            if (tipe === 'index') {
+                btn.onclick = () => {
+                    document.querySelectorAll('#opsiContainer .opt-btn').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    jawabanUser[indeksSekarang] = nilai;
+                    updateSubmitButtonState();
+                    const warnDiv = document.getElementById('warningMsg');
+                    if (warnDiv) warnDiv.style.display = 'none';
+                };
+            } else {
+                btn.onclick = () => {
+                    document.querySelectorAll('#opsiContainer .opt-btn').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    jawabanUser[indeksSekarang] = nilai;
+                    updateSubmitButtonState();
+                    const warnDiv = document.getElementById('warningMsg');
+                    if (warnDiv) warnDiv.style.display = 'none';
+                };
+            }
+            opsiContainer.appendChild(btn);
+        };
+        
+        if (soal.type === 'mc' || soal.type === 'order' || soal.type === 'tf') {
+            soal.options.forEach((opt, idx) => tambahTombol(opt, idx, 'index'));
+        } else if (soal.type === 'fill') {
+            soal.options.forEach(han => tambahTombol(han, han, 'string'));
+        }
+        
+        document.getElementById('tombolNext')?.addEventListener('click', () => {
+            if (quizFinished) return;
+            if (indeksSekarang < daftarSoal.length - 1) { 
+                indeksSekarang++; 
+                renderSoal(); 
+                perbaruiCounter(); 
+            } else if (indeksSekarang === daftarSoal.length - 1) {
+                if (allQuestionsAnswered()) {
+                    hitungDanTampilkanSkor();
+                } else {
+                    const warnDiv = document.getElementById('warningMsg');
+                    if (warnDiv) warnDiv.style.display = 'block';
+                    const submitBtn = document.getElementById('tombolSubmit');
+                    if (submitBtn) submitBtn.disabled = false; 
+                }
+            }
+        });
+        
+        const submitBtn = document.getElementById('tombolSubmit');
+        if (submitBtn) {
+            submitBtn.addEventListener('click', () => {
+                if (allQuestionsAnswered()) {
+                    hitungDanTampilkanSkor();
+                } else {
+                    const warnDiv = document.getElementById('warningMsg');
+                    if (warnDiv) warnDiv.style.display = 'block';
+                    alert("Please answer all 50 questions before submitting!");
+                }
+            });
+        }
+        
+        perbaruiCounter();
+        const skorDiv = document.getElementById('tampilanSkor');
+        const feedDiv = document.getElementById('tampilanFeedback');
+        if (skorDiv) skorDiv.style.display = 'none';
+        if (feedDiv) feedDiv.style.display = 'none';
+        updateSubmitButtonState();
+        startTimer();
+    }
+    
+    function perbaruiCounter() {
+        if (spanSoalKe) spanSoalKe.innerText = (indeksSekarang + 1).toString();
+        if (spanTotal) spanTotal.innerText = daftarSoal.length.toString();
+    }
+    
+    function hitungDanTampilkanSkor() {
+        if (quizFinished) return;
+        quizFinished = true;
+        stopTimer();
+        let benar = 0;
+        const rincian = [];
+        for (let i = 0; i < daftarSoal.length; i++) {
+            const soal = daftarSoal[i];
+            const jawaban = jawabanUser[i];
+            let status = false;
+            let jawabanBenar = '';
+            let jawabanUserTampil = 'Not answered';
+            let userAbjad = null, benarAbjad = null;
+            if (soal.type === 'mc' || soal.type === 'order' || soal.type === 'tf') {
+                if (jawaban !== null && soal.correct === jawaban) { status = true; benar++; }
+                jawabanBenar = soal.options[soal.correct];
+                benarAbjad = getAbjad(soal.correct);
+                if (jawaban !== null) { jawabanUserTampil = soal.options[jawaban]; userAbjad = getAbjad(jawaban); }
+            } else {
+                if (jawaban !== null && jawaban === soal.correct) { status = true; benar++; }
+                jawabanBenar = soal.correct;
+                if (jawaban !== null) jawabanUserTampil = jawaban;
+            }
+            rincian.push({ nomor: i+1, teks: soal.text, user: jawabanUserTampil, userAbjad, benar: jawabanBenar, benarAbjad, status, eks: soal.explanation || '—', type: soal.type });
+        }
+        const persen = Math.round((benar / daftarSoal.length) * 100);
+        const lulus = persen >= 70;
+        const skorDiv = document.getElementById('tampilanSkor');
+        const feedDiv = document.getElementById('tampilanFeedback');
+        if (skorDiv) {
+            skorDiv.style.display = 'block';
+            skorDiv.innerHTML = `👤 Name: ${escapeHtml(namaPeserta)}<br>🏆 SCORE: ${benar} / ${daftarSoal.length} &nbsp; | &nbsp; ACCURACY: ${persen}%<br>📌 ${lulus ? '🎉 PASS (≥70) 🎉' : '❌ NOT PASS, please improve ❌'}`;
+        }
+        if (feedDiv) {
+            feedDiv.style.display = 'block';
+            const salah = rincian.filter(r => !r.status);
+            if (salah.length === 0) feedDiv.innerHTML = '<div style="background:#d9f0e1; padding:14px; border-radius:24px;">✨ PERFECT! All answers correct ✨</div>';
+            else {
+                let html = '<strong>📖 REVIEW OF INCORRECT ANSWERS (with keys)</strong><ul>';
+                salah.forEach(s => {
+                    html += `<li><strong>${s.nomor}. ${escapeHtml(s.teks.substring(0,90))}</strong><br/>`;
+                    if (s.type !== 'fill') html += `✏️ Your answer: ${s.userAbjad ? s.userAbjad+'. ' : ''}${escapeHtml(s.user)}<br/>✅ Correct: ${s.benarAbjad}. ${escapeHtml(s.benar)}<br/>`;
+                    else html += `✏️ Your answer: ${escapeHtml(s.user)}<br/>✅ Correct: ${escapeHtml(s.benar)}<br/>`;
+                    html += `💡 ${escapeHtml(s.eks)}</li>`;
+                });
+                html += '</ul>';
+                feedDiv.innerHTML = html;
+            }
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    document.getElementById('tombolMulai').addEventListener('click', () => {
+        const inputNama = document.getElementById('namaSiswa').value.trim();
+        if (inputNama === "") {
+            alert("Please enter your name first!");
+            return;
+        }
+        namaPeserta = inputNama;
+        tampilNamaSpan.innerText = `👤 ${escapeHtml(namaPeserta)}`;
+        startLayer.style.display = 'none';
+        kuisWrapper.style.display = 'block';
+        daftarSoal = ambil50Soal();
+        jawabanUser = new Array(daftarSoal.length).fill(null);
+        indeksSekarang = 0;
+        quizFinished = false;
+        renderSoal();
+        perbaruiCounter();
+    });
+    
+    document.addEventListener('keydown', e => {
+        if (e.ctrlKey && ['c','C','x','v','p','s','u'].includes(e.key)) { e.preventDefault(); return false; }
+        if (e.key === 'PrintScreen') e.preventDefault();
+    });
+    document.addEventListener('contextmenu', e => e.preventDefault());
+</script>
+</body>
+</html>
