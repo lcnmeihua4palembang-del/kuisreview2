@@ -3,13 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Meihua 4 Quiz | 50 Questions + 20s Timer | English Options</title>
+    <title>Meihua 4 Quiz | 50 Soal + 20s Timer | No Translate/Select/Copy</title>
+    <!-- Mencegah Google Translate dan terjemahan otomatis -->
     <meta name="google" content="notranslate">
     <meta name="robots" content="noindex, nofollow">
+    <meta http-equiv="Content-Language" content="en, id">
+    <meta name="googlebot" content="notranslate">
+    <!-- Mencegah Microsoft Translator -->
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="format-detection" content="telephone=no">
     <style>
         * {
-            user-select: none;
+            user-select: none; /* Mencegah seleksi teks */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
             -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none; /* Mencegah menu popup di iOS */
+        }
+        /* Mencegah copy paste pada input sekalipun */
+        input, textarea, [contenteditable] {
+            user-select: none;
+            -webkit-user-select: none;
         }
         body {
             background: linear-gradient(145deg, #eef2f9 0%, #dce5f0 100%);
@@ -82,6 +97,9 @@
             text-align: center;
             margin: 15px 0;
             outline: none;
+            /* Mencegah copy paste di input nama */
+            user-select: none;
+            -webkit-user-select: none;
         }
         .btn-mulai {
             background: linear-gradient(95deg, #28a47e, #1f8a68);
@@ -99,7 +117,7 @@
         .btn-mulai:hover {
             transform: scale(0.98);
         }
-        /* Kuis wrapper (awal tersembunyi) */
+        /* Kuis wrapper */
         .kuis-wrapper {
             max-width: 1100px;
             width: 100%;
@@ -309,18 +327,17 @@
         <h3>🎯 Chinese Challenge</h3>
         <div class="aturan">
             <p>📌 <strong>Quiz Rules:</strong></p>
-            <p>1. Total questions: <strong>50</strong> (randomized).</p>
-            <p>2. Final score & full explanation at the end.</p>
-            <p>3. Minimum passing score: <strong>70</strong> (≥70 = PASS).</p>
+            <p>1. Total questions: <strong>50</strong> & 20 seconds for each question.</p>
+            <p>2. Minimum passing score: <strong>70</strong> (≥70 = PASS).</p>
         </div>
-        <input type="text" id="namaSiswa" class="input-nama" placeholder="Enter your name" autocomplete="off">
+        <input type="text" id="namaSiswa" class="input-nama" placeholder="Enter your name" autocomplete="off" oncopy="return false" oncut="return false" onpaste="return false" ondrag="return false" ondrop="return false">
         <button class="btn-mulai" id="tombolMulai">✅ START QUIZ ✅</button>
     </div>
 </div>
 
 <div class="kuis-wrapper" id="kuisWrapper">
     <div class="header">
-        <h1>🎯 Meihua 4 Quiz <span class="badge">50 Dynamic Questions</span></h1>
+        <h1>🎯 Meihua 4 Quiz <span class="badge">lcnpalembang-08994477998</span></h1>
         <div class="info-row">
             <div class="counter">📌 Question <span id="soalKe">1</span> / <span id="totalSoal">50</span></div>
             <div class="timer-area">⏱️ <span id="timerDetik">20</span> seconds</div>
@@ -330,14 +347,133 @@
     <div class="question-panel" id="questionPanel">
         <div style="text-align:center; padding:40px;">Loading questions...</div>
     </div>
-    <footer>✔️ | Random questions & options | 20s per question | Auto-forward | No backward | lcnpalembang</footer>
+    <footer>✔️ | No copy/paste/select | No translate | 20s per question | Auto-forward | lcnpalembang</footer>
 </div>
 
 <script>
+    // ======================== BLOCK GOOGLE TRANSLATE & AUTO-TRANSLATION ========================
+    (function() {
+        // 1. Mencegah Google Translate Framework
+        if (typeof window !== 'undefined') {
+            // Menghapus meta Google Translate jika ditambahkan secara otomatis (cara pencegahan)
+            const removeGoogleTranslateMeta = () => {
+                const metas = document.querySelectorAll('meta');
+                metas.forEach(meta => {
+                    if (meta.getAttribute('name') === 'google') return;
+                    if (meta.getAttribute('content') && meta.getAttribute('content').includes('translate')) {
+                        meta.remove();
+                    }
+                });
+            };
+            removeGoogleTranslateMeta();
+            
+            // 2. Mencegah elemen body memiliki class 'translated' atau atribut terjemahan
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.attributeName === 'class' || mutation.attributeName === 'style') {
+                        const body = document.body;
+                        if (body && (body.innerHTML.includes('translated') || body.getAttribute('class')?.includes('translated'))) {
+                            // Jika terdeteksi terjemahan, refresh paksa (opsi drastis)
+                            // Atau kita bisa hanya membatalkan perubahan, tapi lebih baik mencegah
+                        }
+                    }
+                });
+            });
+            observer.observe(document.body, { attributes: true, childList: false, subtree: false });
+            
+            // 3. Menonaktifkan fitur translate dari browser (non-standard tapi banyak browser)
+            // Menambahkan atribut translate="no" pada seluruh elemen penting
+            const setNoTranslate = (element) => {
+                if (element.setAttribute) {
+                    element.setAttribute('translate', 'no');
+                }
+                if (element.children) {
+                    for (let child of element.children) {
+                        setNoTranslate(child);
+                    }
+                }
+            };
+            setTimeout(() => {
+                setNoTranslate(document.body);
+            }, 100);
+        }
+        
+        // Mencegah Google Translate popup / menimpa bahasa
+        const disableTranslations = function() {
+            // Memaksa bahasa default
+            document.documentElement.lang = 'en';
+            document.documentElement.setAttribute('lang', 'en');
+            // Mencegah pemuatan skrip Google Translate
+            const preventGT = () => {
+                const scripts = document.querySelectorAll('script');
+                for (let script of scripts) {
+                    if (script.src && script.src.includes('translate')) {
+                        script.remove();
+                    }
+                }
+            };
+            preventGT();
+            new MutationObserver(() => preventGT()).observe(document.head, { childList: true, subtree: true });
+        };
+        disableTranslations();
+    })();
+    
+    // ======================== CEKAL COPY, PASTE, SELECT, DRAG ========================
+    function disableCopyPasteSelect() {
+        // Mencegah semua event copy, cut, paste
+        document.addEventListener('copy', function(e) {
+            e.preventDefault();
+            return false;
+        });
+        document.addEventListener('cut', function(e) {
+            e.preventDefault();
+            return false;
+        });
+        document.addEventListener('paste', function(e) {
+            e.preventDefault();
+            return false;
+        });
+        document.addEventListener('dragstart', function(e) {
+            e.preventDefault();
+            return false;
+        });
+        document.addEventListener('drop', function(e) {
+            e.preventDefault();
+            return false;
+        });
+        // Mencegah seleksi via mouse atau keyboard (CTRL+A)
+        document.addEventListener('selectstart', function(e) {
+            e.preventDefault();
+            return false;
+        });
+        document.addEventListener('keydown', function(e) {
+            // Blok CTRL+A, CTRL+C, CTRL+X, CTRL+V, CTRL+U, CTRL+S, CTRL+P
+            if (e.ctrlKey && ['a', 'c', 'x', 'v', 'u', 's', 'p', 'A', 'C', 'X', 'V', 'U', 'S', 'P'].includes(e.key)) {
+                e.preventDefault();
+                return false;
+            }
+            // Blok F12, Ctrl+Shift+I (Developer tools shortcut)
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') || (e.ctrlKey && e.shiftKey && e.key === 'C') || (e.ctrlKey && e.shiftKey && e.key === 'J')) {
+                e.preventDefault();
+                return false;
+            }
+            // Blok PrintScreen
+            if (e.key === 'PrintScreen') {
+                e.preventDefault();
+                return false;
+            }
+        });
+        // Mencegah context menu (klik kanan)
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
+    }
+    disableCopyPasteSelect();
+    
     // ======================== BANK SOAL (ENGLISH OPTIONS) ========================
     function buatBankSoal() {
         const bank = [];
-        // All options are now in ENGLISH (except the Chinese questions remain)
         const mcList = [
             { text: "What is the meaning of “左边” ?", options: ["Right side", "Left side", "Front", "Back"], correct: 1, explanation: "左边 = left side" },
             { text: "Pinyin for “咖啡厅” ?", options: ["kāfēi tīng", "kāfēi tíng", "kā fēi tīng", "jiāfēi tīng"], correct: 0, explanation: "kāfēi tīng" },
@@ -501,11 +637,9 @@
     function lanjutOtomatis() {
         if (quizFinished) return;
         if (indeksSekarang === daftarSoal.length - 1) {
-            // jika sudah di akhir, jangan auto lanjut, tapi cek submit
             if (allQuestionsAnswered()) {
                 hitungDanTampilkanSkor();
             } else {
-                // tetap di soal terakhir, tapi timer berhenti? kita stop timer dan tampilkan warning
                 stopTimer();
                 const submitBtn = document.getElementById('tombolSubmit');
                 if (submitBtn) submitBtn.disabled = false;
@@ -547,8 +681,8 @@
         let html = `
             <div>
                 <div class="q-type">${labelTipe}</div>
-                <div class="question-text">${escapeHtml(soal.text)}</div>
-                <div class="options-area" id="opsiContainer"></div>
+                <div class="question-text" translate="no">${escapeHtml(soal.text)}</div>
+                <div class="options-area" id="opsiContainer" translate="no"></div>
                 <div class="nav-row">
                     <button class="nav-btn" id="tombolPrev" disabled style="opacity:0.5; cursor:not-allowed;">◀ Previous (Disabled)</button>
                     <button class="nav-btn" id="tombolNext">Next ▶</button>
@@ -567,6 +701,7 @@
         const tambahTombol = (teks, nilai, tipe) => {
             const btn = document.createElement('button');
             btn.className = 'opt-btn';
+            btn.setAttribute('translate', 'no');
             let selected = false;
             if (tipe === 'index' && jawabanTersimpan !== null && jawabanTersimpan === nilai) selected = true;
             if (tipe === 'string' && jawabanTersimpan !== null && jawabanTersimpan === nilai) selected = true;
@@ -715,12 +850,6 @@
         renderSoal();
         perbaruiCounter();
     });
-    
-    document.addEventListener('keydown', e => {
-        if (e.ctrlKey && ['c','C','x','v','p','s','u'].includes(e.key)) { e.preventDefault(); return false; }
-        if (e.key === 'PrintScreen') e.preventDefault();
-    });
-    document.addEventListener('contextmenu', e => e.preventDefault());
 </script>
 </body>
 </html>
